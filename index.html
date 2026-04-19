@@ -1013,6 +1013,10 @@ tailwind.config = {
             </select>
           </div>
         </div>
+        <div class="flex items-center gap-2 mb-3">
+          <label for="dlFilename" class="text-[10px] text-dim uppercase tracking-[.1em] whitespace-nowrap">file name</label>
+          <input id="dlFilename" type="text" class="field !py-1 !px-2 !text-xs flex-1 min-w-0" placeholder="qr" maxlength="100">
+        </div>
         <button class="dl-cta" id="dlCta">
           <div class="dl-cta-label">
             <div>Download</div>
@@ -4449,28 +4453,39 @@ setDlFormat(dlFormat);
 
 $$('.fmt-chip').forEach(c => c.addEventListener('click', () => setDlFormat(c.dataset.fmt)));
 
+/* ---- Download filename preference ---- */
+$('#dlFilename').value = localStorage.getItem('qrforge.dlName') || '';
+$('#dlFilename').addEventListener('input', e => {
+  localStorage.setItem('qrforge.dlName', e.target.value.trim());
+});
+function getFilename(ext) {
+  const raw = $('#dlFilename').value.trim();
+  const base = raw.replace(/[/\\?%*:|"<>]/g, '-') || 'qr';
+  return base + '.' + ext;
+}
+
 $('#dlCta').addEventListener('click', () => {
   switch (dlFormat) {
     case 'png': {
       const c = document.createElement('canvas'); render(c, state.resolution);
-      c.toBlob(b => b && downloadBlob(b, 'qr.png'), 'image/png');
+      c.toBlob(b => b && downloadBlob(b, getFilename('png')), 'image/png');
       break;
     }
     case 'svg': {
       const svg = renderSVG(state.resolution);
-      downloadBlob(new Blob([svg], {type:'image/svg+xml'}), 'qr.svg');
+      downloadBlob(new Blob([svg], {type:'image/svg+xml'}), getFilename('svg'));
       break;
     }
     case 'jpeg': {
       const c = document.createElement('canvas');
       const wasT = state.bgTransparent; state.bgTransparent = false;
       render(c, state.resolution); state.bgTransparent = wasT;
-      c.toBlob(b => b && downloadBlob(b, 'qr.jpg'), 'image/jpeg', 0.95);
+      c.toBlob(b => b && downloadBlob(b, getFilename('jpg')), 'image/jpeg', 0.95);
       break;
     }
     case 'webp': {
       const c = document.createElement('canvas'); render(c, state.resolution);
-      c.toBlob(b => b && downloadBlob(b, 'qr.webp'), 'image/webp', 0.95);
+      c.toBlob(b => b && downloadBlob(b, getFilename('webp')), 'image/webp', 0.95);
       break;
     }
   }

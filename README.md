@@ -13,7 +13,7 @@
 - **Themed presets** — Kente, Ashanti Gold, Sankofa, Taoist, Egyptian, Celtic, Māori, Norse, Buddhist, and more
 - **Print-ready business cards** — Contact Card type generates a 3.5 × 2 in card, downloadable as PNG or printable directly
 - **Day / Night / Ambient modes**
-- **Download as PNG, SVG, JPEG, or WebP** — up to 4096px for print
+- **Download as PNG, SVG, JPEG, or WebP** — up to 4096px for print, with a custom filename you set before downloading (saved across sessions)
 - **100% client-side** — no server, no account, no data uploaded
 
 ## Cultural Symbols
