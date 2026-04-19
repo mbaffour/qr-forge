@@ -4434,7 +4434,25 @@ $('#bgImgRemove').addEventListener('click', () => { state.bgImg = null; $('#bgIm
 /* export */
 $('#resolution').addEventListener('change', e => { state.resolution = +e.target.value; });
 
-function downloadBlob(blob, name) {
+async function downloadBlob(blob, name) {
+  if (window.showSaveFilePicker) {
+    const ext = name.split('.').pop().toLowerCase();
+    const types = {
+      png:  [{ description: 'PNG Image',  accept: { 'image/png':      ['.png']        } }],
+      svg:  [{ description: 'SVG Image',  accept: { 'image/svg+xml':  ['.svg']        } }],
+      jpg:  [{ description: 'JPEG Image', accept: { 'image/jpeg':     ['.jpg','.jpeg']} }],
+      webp: [{ description: 'WebP Image', accept: { 'image/webp':     ['.webp']       } }],
+    };
+    try {
+      const handle = await window.showSaveFilePicker({ suggestedName: name, types: types[ext] || [] });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch(e) {
+      if (e.name === 'AbortError') return;
+    }
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name; document.body.appendChild(a); a.click(); a.remove();
