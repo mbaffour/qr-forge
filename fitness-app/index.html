@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitForge — Personal Fitness Tracker</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="theme-dark">
+
+  <!-- ── Top Nav ── -->
+  <nav class="topnav">
+    <div class="nav-brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-name">FitForge</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+      <button class="nav-btn" data-view="log">Log Workout</button>
+      <button class="nav-btn" data-view="library">Exercise Library</button>
+      <button class="nav-btn" data-view="progress">Progress</button>
+      <button class="nav-btn" data-view="challenges">Challenges</button>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+      <button class="btn-icon" id="exportBtn" title="Export data">⬇</button>
+      <label class="btn-icon" id="importLabel" title="Import data">⬆
+        <input type="file" id="importInput" accept=".json" hidden />
+      </label>
+    </div>
+  </nav>
+
+  <!-- ── Views ── -->
+  <main class="main-content">
+
+    <!-- Dashboard -->
+    <section class="view active" id="view-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p class="subtitle" id="dashGreeting">Good morning — let's move.</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="statWeekWorkouts">0</div>
+          <div class="stat-label">Workouts This Week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statStreak">0🔥</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTotalSets">0</div>
+          <div class="stat-label">Sets Logged (All Time)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statPRCount">0</div>
+          <div class="stat-label">Personal Records</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card" id="recommendationCard">
+          <h2 class="card-title">Today's Recommendation</h2>
+          <div id="recommendationContent" class="recommendation-body">
+            <p class="muted">Log a few workouts to get smart recommendations.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Recent Workouts</h2>
+          <div id="recentWorkouts">
+            <p class="muted">No workouts logged yet.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Active Challenge</h2>
+          <div id="dashChallenge">
+            <p class="muted">No active challenge. Visit Challenges to start one.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Personal Records</h2>
+          <div id="dashPRs">
+            <p class="muted">PRs will appear as you log workouts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Log Workout -->
+    <section class="view" id="view-log">
+      <div class="page-header">
+        <h1>Log Workout</h1>
+        <div class="mode-selector">
+          <label class="mode-label">Mode:</label>
+          <div class="mode-pills">
+            <button class="pill active" data-mode="strength">Strength</button>
+            <button class="pill" data-mode="hypertrophy">Hypertrophy</button>
+            <button class="pill" data-mode="endurance">Endurance</button>
+            <button class="pill" data-mode="recovery">Recovery</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-info-bar" id="modeInfoBar">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="log-grid">
+        <div class="card log-form-card">
+          <h2 class="card-title">Add Exercise</h2>
+          <form id="logForm" autocomplete="off">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="logDate" required />
+            </div>
+            <div class="form-group">
+              <label>Exercise</label>
+              <input type="text" id="logExercise" list="exerciseList" placeholder="e.g. Squat" required />
+              <datalist id="exerciseList"></datalist>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Sets</label>
+                <input type="number" id="logSets" min="1" max="20" placeholder="3" required />
+              </div>
+              <div class="form-group">
+                <label>Reps</label>
+                <input type="number" id="logReps" min="1" max="100" placeholder="8" required />
+              </div>
+              <div class="form-group">
+                <label>Weight (kg)</label>
+                <input type="number" id="logWeight" min="0" step="0.5" placeholder="60" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <input type="text" id="logNotes" placeholder="Optional notes" />
+            </div>
+            <div class="suggestion-box" id="suggestionBox" hidden>
+              <span class="suggestion-label">Suggestion</span>
+              <span id="suggestionText"></span>
+              <button type="button" class="btn-small" id="applySuggestion">Apply</button>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Log Set</button>
+              <button type="button" class="btn-secondary" id="clearLog">Clear</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title-row">
+            <h2 class="card-title">Today's Session</h2>
+            <span class="badge" id="sessionCount">0 entries</span>
+          </div>
+          <div id="todayLog">
+            <p class="muted">Start logging exercises above.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-title-row">
+          <h2 class="card-title">Workout History</h2>
+          <div class="filter-row">
+            <input type="text" id="historyFilter" placeholder="Filter exercise..." class="input-small" />
+            <button class="btn-secondary btn-small" id="clearAllHistory">Clear All</button>
+          </div>
+        </div>
+        <div id="workoutHistory">
+          <p class="muted">No history yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Exercise Library -->
+    <section class="view" id="view-library">
+      <div class="page-header">
+        <h1>Exercise Library</h1>
+        <div class="filter-row">
+          <input type="text" id="librarySearch" placeholder="Search exercises..." class="input-small" />
+          <select id="libraryCategory" class="input-small">
+            <option value="">All Categories</option>
+            <option value="strength">Strength</option>
+            <option value="calisthenics">Calisthenics</option>
+            <option value="mobility">Mobility / Yoga</option>
+          </select>
+          <select id="libraryMuscle" class="input-small">
+            <option value="">All Muscles</option>
+            <option value="chest">Chest</option>
+            <option value="back">Back</option>
+            <option value="shoulders">Shoulders</option>
+            <option value="arms">Arms</option>
+            <option value="core">Core</option>
+            <option value="legs">Legs</option>
+            <option value="full body">Full Body</option>
+          </select>
+        </div>
+      </div>
+      <div id="libraryGrid" class="library-grid"></div>
+
+      <!-- Exercise Detail Modal -->
+      <div class="modal-overlay" id="exerciseModal" hidden>
+        <div class="modal">
+          <button class="modal-close" id="modalClose">✕</button>
+          <div id="modalContent"></div>
+          <button class="btn-primary mt-16" id="modalLogBtn">Log This Exercise</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress -->
+    <section class="view" id="view-progress">
+      <div class="page-header">
+        <h1>Progress</h1>
+      </div>
+      <div class="progress-grid">
+        <div class="card chart-card">
+          <h2 class="card-title">Weight Progression</h2>
+          <div class="chart-controls">
+            <select id="progressExercise" class="input-small">
+              <option value="">Select exercise…</option>
+            </select>
+          </div>
+          <canvas id="weightChart"></canvas>
+          <p class="chart-empty muted" id="weightChartEmpty">Select an exercise to see progression.</p>
+        </div>
+        <div class="card chart-card">
+          <h2 class="card-title">Workouts Per Week</h2>
+          <canvas id="weeklyChart"></canvas>
+          <p class="chart-empty muted" id="weeklyChartEmpty" hidden></p>
+        </div>
+      </div>
+      <div class="card mt-16">
+        <h2 class="card-title">All Personal Records</h2>
+        <div id="allPRs"><p class="muted">No PRs yet.</p></div>
+      </div>
+    </section>
+
+    <!-- Challenges -->
+    <section class="view" id="view-challenges">
+      <div class="page-header">
+        <h1>Challenges</h1>
+      </div>
+      <div class="challenges-grid" id="challengesGrid"></div>
+    </section>
+
+  </main>
+
+  <!-- JS modules (order matters) -->
+  <script src="js/exercises.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/training.js"></script>
+  <script src="js/challenges.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
