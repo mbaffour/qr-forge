@@ -50,11 +50,9 @@ cd qr-forge
 open index.html   # or double-click it
 ```
 
-## Analytics
+## Privacy
 
-Visitor stats are tracked via [GoatCounter](https://www.goatcounter.com) — privacy-friendly, no cookies, GDPR-compliant. View stats at `https://qr-forge.goatcounter.com`.
-
-> **To use your own analytics:** sign up at [goatcounter.com](https://www.goatcounter.com), create a site with code `qr-forge` (or any code), and the tracking script in both `index.html` and `blog.html` will start sending data to your dashboard.
+No tracking, no cookies, no analytics, no third-party scripts. Everything runs entirely in your browser — nothing is ever uploaded. The utility CSS is self-hosted (`assets/tw.css`), so the only external requests are for the Google Fonts used by the interface.
 
 ## Contributing
 

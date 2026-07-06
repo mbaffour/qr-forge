@@ -6,30 +6,12 @@
 <title>QR FORGE — creative QR code generator</title>
 <meta name="description" content="Client-side QR code generator. Custom shapes, gradients, logos, image blending, Ghanaian Kente & Adinkra themes." />
 
-<!-- Tailwind via CDN (only external dep; CSS only, still works offline after first load) -->
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- Self-hosted utility CSS (hand-built subset of the classes used here).
+     Replaces cdn.tailwindcss.com — the dev/play CDN build is not meant for production. -->
+<link rel="stylesheet" href="assets/tw.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Space+Mono:wght@400;700&family=Syne:wght@500;700;800&display=swap" rel="stylesheet">
-
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        ink:'#0d0a00', panel:'#1a1100', panel2:'#251800', line:'#3d2a00',
-        neon:'#E8B800', hot:'#C8102E', cyan:'#00703C', amber:'#E8B800', dim:'#9a8660',
-        kgold:'#E8B800', kred:'#C8102E', kgreen:'#00703C', kcream:'#F5E6C5', kblack:'#1a1100',
-      },
-      fontFamily: {
-        display:['"Major Mono Display"','monospace'],
-        head:['Syne','sans-serif'],
-        mono:['"Space Mono"','monospace'],
-      }
-    }
-  }
-}
-</script>
 
 <style>
   :root { color-scheme: dark; }
@@ -404,9 +386,7 @@ tailwind.config = {
   html.mode-ambient .card-qr-side { border-color:#291900; }
   html.mode-ambient #scoreBar { background:#c89800 !important; }
 </style>
-<!-- GoatCounter analytics — privacy-friendly, no cookies, GDPR-compliant -->
-<!-- Sign up free at goatcounter.com and replace "qr-forge" with your site code -->
-<script data-goatcounter="https://qr-forge.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<!-- No analytics, no beacons, no third-party scripts. The footer's "0 tracking" is literally true. -->
 </head>
 <body class="text-white font-mono">
 
@@ -1030,6 +1010,7 @@ tailwind.config = {
           <button class="btn" id="copyImg">copy to clipboard</button>
           <button class="btn pink" id="shareLink">copy share link</button>
         </div>
+        <button class="btn ghost w-fit mt-3" id="copySvgCode" title="Copy the vector SVG markup — paste straight into a web page or design tool">&lt;/&gt; copy svg code</button>
       </div>
     </div>
 
@@ -1051,7 +1032,7 @@ tailwind.config = {
 
 <footer class="border-t border-line mt-12">
   <div class="max-w-[1400px] mx-auto px-6 py-6 flex flex-wrap gap-4 justify-between items-center text-[11px] text-dim font-mono">
-    <div>built with qrcode-generator (MIT) · tailwind · one html file · 0 tracking</div>
+    <div>built with qrcode-generator (MIT) · self-hosted css · one html file · 0 tracking</div>
     <div>QR code is a trademark of DENSO WAVE INC.</div>
   </div>
 </footer>
@@ -4493,6 +4474,18 @@ $('#shareLink').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(url); setStatus('share link copied', 'good'); }
   catch(e) { prompt('copy this link:', url); }
 });
+/* Copy the vector SVG markup to the clipboard (great for pasting inline into
+   web pages or design tools). Reuses renderSVG(); falls back to a download. */
+$('#copySvgCode').addEventListener('click', async () => {
+  const svg = renderSVG(state.resolution);
+  try {
+    await navigator.clipboard.writeText(svg);
+    setStatus('svg code copied', 'good');
+  } catch (e) {
+    downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), 'qr.svg');
+    setStatus('clipboard blocked — svg downloaded', 'bad');
+  }
+});
 $('#resetAll').addEventListener('click', () => {
   if (!confirm('reset everything?')) return;
   localStorage.removeItem('qrforge.state');
@@ -4637,7 +4630,10 @@ $('#printCard').addEventListener('click', () => {
   if (!pw) { setStatus('allow popups to print', 'bad'); return; }
   pw.document.write(`<!DOCTYPE html><html><head>
 <meta charset="utf-8"><title>Business Card — ${name}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono&display=swap" rel="stylesheet">
+<!-- window.open creates a separate document that does NOT inherit the opener's web fonts, so load Syne & Space Mono here for the printed card. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;800&family=Space+Mono&display=swap">
 <style>
   @page { size: 3.5in 2in; margin:0; }
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
