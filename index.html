@@ -4630,7 +4630,10 @@ $('#printCard').addEventListener('click', () => {
   if (!pw) { setStatus('allow popups to print', 'bad'); return; }
   pw.document.write(`<!DOCTYPE html><html><head>
 <meta charset="utf-8"><title>Business Card — ${name}</title>
-<!-- Syne & Space Mono are already loaded (and cached) by the opener; no duplicate Google Fonts request needed here. -->
+<!-- window.open creates a separate document that does NOT inherit the opener's web fonts, so load Syne & Space Mono here for the printed card. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;800&family=Space+Mono&display=swap">
 <style>
   @page { size: 3.5in 2in; margin:0; }
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
